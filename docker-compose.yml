@@ -1,0 +1,51 @@
+version: '3.4'
+
+services:
+  acme.sdk.api:
+    image: ${DOCKER_REGISTRY-}acmesdk
+    container_name: acme.sdk.api
+    ports:
+      - "5001:80"
+    networks:
+      acme.sdk.network:
+        aliases:
+          - acme.sdk.api
+    build:
+      context: .
+      dockerfile: Acme.Sdk.Api/Dockerfile
+
+  acme.sdk.math:
+    image: ${DOCKER_REGISTRY-}acmesdk
+    container_name: acme.sdk.math
+    ports:
+      - "5002:80"
+    networks:
+      acme.sdk.network:
+        aliases:
+          - acme.sdk.math
+    build:
+      context: .
+      dockerfile: Acme.Sdk.Math/Dockerfile
+  
+  acme.sdk.db:
+    image: "mcr.microsoft.com/azure-sql-edge"
+    container_name: acme.sdk.db
+    ports:
+      - "1401:1433"
+    networks:
+      acme.sdk.network:
+        aliases:
+          - acme.sdk.db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "P4ssw0rd!"
+    volumes:
+      - mssql:/var/opt/mssql
+    restart: unless-stopped
+
+networks:
+  acme.sdk.network:
+    driver: bridge
+    
+volumes:
+    mssql:
